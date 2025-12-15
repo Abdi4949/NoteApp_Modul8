@@ -9,10 +9,9 @@ import {
 } from "@gluestack-ui/themed";
 import { IconDelete, IconEdit } from "../../../assets";
 import { useNavigation } from "@react-navigation/native";
-
+import { deleteNote } from "../../../actions/AuthActions";
 const ListNote = ({ judul, isi, tanggal, status, category, noteId }) => {
   const navigation = useNavigation();
-
   const handleEditClick = () => {
     navigation.navigate("EditNote", {
       judul,
@@ -22,12 +21,10 @@ const ListNote = ({ judul, isi, tanggal, status, category, noteId }) => {
       noteId,
     });
   };
-
   const handleDeleteClick = () => {
     deleteNote(noteId);
     navigation.replace("MainApp");
   };
-
   return (
     <Box
       shadowColor="$black"
@@ -81,5 +78,4 @@ const ListNote = ({ judul, isi, tanggal, status, category, noteId }) => {
     </Box>
   );
 };
-
 export default ListNote;

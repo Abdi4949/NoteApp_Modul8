@@ -1,24 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { Box, FlatList } from "@gluestack-ui/themed";
 import { CategoryTab, ListNote } from "../../components";
-import { useNotes } from "../../context/NotesContext";
-
+import { getNote } from "../../actions/AuthActions";
 const Home = ({ navigation }) => {
-  const { userNotes, categories } = useNotes();
+  const [userNotes, setUserNotes] = useState([]);
+  const [category, setCategory] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-
+  useEffect(() => {
+    const fetchData = async () => {
+      const notes = await getNote();
+      const categories = notes.map((note) => note.category);
+      const uniqueCategories = Array.from(new Set(categories));
+      setUserNotes(notes);
+      setCategory(uniqueCategories);
+    };
+    const unsubscribe = navigation.addListener("focus", fetchData);
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation]);
   const onCategoryPress = (selectedCategory) => {
     setSelectedCategory(selectedCategory);
   };
-
   const filteredNotes = selectedCategory
     ? userNotes.filter((note) => note.category === selectedCategory)
     : userNotes;
-
   return (
-    <Box py="$3" px="$2" marginTop="$10" pb="$24">
+    <Box py="$3" px="$2" marginTop="$10">
       <FlatList
-        data={categories}
+        data={category}
         renderItem={({ item, index }) => (
           <CategoryTab
             key={index}
@@ -30,7 +40,6 @@ const Home = ({ navigation }) => {
         )}
         horizontal={true}
         mb={"$4"}
-        showsHorizontalScrollIndicator={false}
       />
       <FlatList
         data={filteredNotes}
@@ -46,11 +55,8 @@ const Home = ({ navigation }) => {
           />
         )}
         keyExtractor={(item) => item.noteId}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
       />
     </Box>
   );
 };
-
 export default Home;
